@@ -20,7 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (name != null) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => AttendanceScreen(userName: nameFromLogin)),
+          MaterialPageRoute(builder: (_) => AttendanceScreen(userName: name)),
         );
 
       } else {
