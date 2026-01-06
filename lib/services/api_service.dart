@@ -1,64 +1,62 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'attendance_item.dart';
 
 class ApiService {
+  // REPLACE WITH YOUR ACTUAL DOMAIN
   static const String baseUrl = "http://hasankaranouh.atwebpages.com/api";
 
-  // REGISTER
-  static Future<bool> register(String name, String email, String password) async {
-    final res = await http.post(
-      Uri.parse("$baseUrl/register.php"),
-      body: jsonEncode({
-        "name": name,
-        "email": email,
-        "password": password,
-      }),
-      headers: {"Content-Type": "application/json"},
-    );
-    final data = json.decode(res.body);
-    return data['success'] == true;
-  }
-
-  // LOGIN
-  static Future<String?> login(String email, String password) async {
-    final response = await http.post(
-      Uri.parse("$baseUrl/login.php"),
-      headers: {"Content-Type": "application/json; charset=UTF-8"},
-      body: jsonEncode({
-        "email": email,
-        "password": password,
-      }),
-    );
-
-    final data = jsonDecode(response.body);
-
-    if (data["success"] == true) {
-      return data["name"];
-    } else {
-      return null;
+  static Future<Map<String, dynamic>> register(String name, String email, String password) async {
+    try {
+      final response = await http.post(
+        Uri.parse("${baseUrl}register.php"),
+        body: {'name': name, 'email': email, 'password': password},
+      );
+      return json.decode(response.body);
+    } catch (e) {
+      return {"status": "error", "message": e.toString()};
     }
   }
 
-  // MARK ATTENDANCE
-  static Future<bool> markAttendance(
-      String userName, String subject, String status) async {
-    final res = await http.post(
-      Uri.parse("$baseUrl/mark_attendance.php"),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "user_name": userName,
-        "subject": subject,
-        "status": status,
-      }),
-    );
-    final data = json.decode(res.body);
-    return data['success'] == true;
+  static Future<Map<String, dynamic>> login(String email, String password) async {
+    try {
+      final response = await http.post(
+        Uri.parse("${baseUrl}login.php"),
+        body: {'email': email, 'password': password},
+      );
+      return json.decode(response.body);
+    } catch (e) {
+      return {"status": "error", "message": e.toString()};
+    }
   }
 
-  // GET ATTENDANCE RECORDS
-  static Future<List<dynamic>> getAttendance() async {
-    final res = await http.get(Uri.parse("$baseUrl/get_attendance.php"));
-    final data = jsonDecode(res.body);
-    return data['records'];
+  static Future<Map<String, dynamic>> markAttendance(String userName, String subject, String status) async {
+    try {
+      final response = await http.post(
+        Uri.parse("${baseUrl}mark_attendance.php"),
+        body: {'user_name': userName, 'subject': subject, 'status': status},
+      );
+      return json.decode(response.body);
+    } catch (e) {
+      return {"status": "error", "message": e.toString()};
+    }
+  }
+
+  static Future<List<AttendanceItem>> getAttendance(String userName) async {
+    try {
+      final response = await http.post(
+        Uri.parse("${baseUrl}get_attendance.php"),
+        body: {'user_name': userName},
+      );
+
+      if (response.statusCode == 200) {
+        List<dynamic> body = json.decode(response.body);
+        return body.map((dynamic item) => AttendanceItem.fromJson(item)).toList();
+      } else {
+        return [];
+      }
+    } catch (e) {
+      return [];
+    }
   }
 }

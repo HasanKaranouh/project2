@@ -1,35 +1,25 @@
 class AttendanceItem {
-  int? id;
-  String userName;
-  String subject;
-  String status;
-  String attendanceDate;
+  final String id;
+  final String userName;
+  final String subject;
+  final String status;
+  final String date;
 
   AttendanceItem({
-    this.id,
+    required this.id,
     required this.userName,
     required this.subject,
     required this.status,
-    required this.attendanceDate,
+    required this.date,
   });
 
-  // Convert to Map for sending to API (if needed)
-  Map<String, String> toMap() {
-    return {
-      'user_name': userName,
-      'subject': subject,
-      'status': status,
-    };
-  }
-
-  // Factory to create AttendanceItem from JSON
   factory AttendanceItem.fromJson(Map<String, dynamic> json) {
     return AttendanceItem(
-      id: int.tryParse(json['id'].toString()),
-      userName: json['user_name'] ?? '',
-      subject: json['subject'] ?? '',
-      status: json['status'] ?? '',
-      attendanceDate: json['attendance_date'] ?? '',
+      id: json['id'].toString(),
+      userName: json['user_name'],
+      subject: json['subject'],
+      status: json['status'],
+      date: json['attendance_date'],
     );
   }
 }
