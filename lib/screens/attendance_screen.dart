@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'mark_attendance_screen.dart';
-import '';
-import 'attendance_item.dart';
+import 'package:project2/services/api_service.dart';
+import 'package:project2/models/attendance_item.dart';
 
 class AttendanceScreen extends StatefulWidget {
   final String userName; // We need to know whose attendance to show

@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import 'package:project2/models/attendance_item.dart';
 
 class ApiService {
-  // REPLACE WITH YOUR ACTUAL DOMAIN
   static const String baseUrl = "http://hasankaranouh.atwebpages.com/api";
 
   static Future<Map<String, dynamic>> register(String name, String email, String password) async {
