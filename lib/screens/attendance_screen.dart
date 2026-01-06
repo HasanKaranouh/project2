@@ -2,42 +2,42 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'mark_attendance_screen.dart';
 
-class HomeScreen extends StatefulWidget {
+class AttendanceScreen extends StatefulWidget {
   final String userName;
-  const HomeScreen({super.key, required this.userName});
+  const AttendanceScreen({super.key, required this.userName});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<AttendanceScreen> createState() => _AttendanceScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  List notices = [];
+class _AttendanceScreenState extends State<AttendanceScreen> {
+  List attendanceRecords = [];
 
   @override
   void initState() {
     super.initState();
-    fetchNotices();
+    fetchAttendance();
   }
 
-  void fetchNotices() async {
-    final data = await ApiService.getNotices();
+  void fetchAttendance() async {
+    final data = await ApiService.getAttendance();
     setState(() {
-      notices = data;
+      attendanceRecords = data;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Campus Notice Board")),
+      appBar: AppBar(title: const Text("Attendance Records")),
       body: ListView.builder(
-        itemCount: notices.length,
+        itemCount: attendanceRecords.length,
         itemBuilder: (context, index) {
-          final notice = notices[index];
+          final record = attendanceRecords[index];
           return ListTile(
-            title: Text(notice['user_name']),
-            subtitle: Text(notice['content']),
-            trailing: Text(notice['created_at'] ?? ''),
+            title: Text(record['subject'] ?? ''),
+            subtitle: Text("Student: ${record['user_name']}"),
+            trailing: Text(record['status'] ?? ''),
           );
         },
       ),
@@ -46,10 +46,11 @@ class _HomeScreenState extends State<HomeScreen> {
           await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => AddNoticeScreen(userName: widget.userName),
+              builder: (_) =>
+                  MarkAttendanceScreen(userName: widget.userName),
             ),
           );
-          fetchNotices(); // refresh after adding
+          fetchAttendance(); // refresh after marking attendance
         },
         child: const Icon(Icons.add),
       ),
