@@ -5,18 +5,16 @@ class ApiService {
   static const String baseUrl = "http://hasankaranouh.atwebpages.com/api";
 
   // REGISTER
-  static Future<bool> register(
-      String name, String email, String password) async {
+  static Future<bool> register(String name, String email, String password) async {
     final res = await http.post(
       Uri.parse("$baseUrl/register.php"),
-      headers: {"Content-Type": "application/json"},
       body: jsonEncode({
         "name": name,
         "email": email,
         "password": password,
       }),
+      headers: {"Content-Type": "application/json"},
     );
-
     final data = json.decode(res.body);
     return data['success'] == true;
   }
@@ -25,7 +23,7 @@ class ApiService {
   static Future<String?> login(String email, String password) async {
     final response = await http.post(
       Uri.parse("$baseUrl/login.php"),
-      headers: {"Content-Type": "application/json"},
+      headers: {"Content-Type": "application/json; charset=UTF-8"},
       body: jsonEncode({
         "email": email,
         "password": password,
@@ -36,29 +34,31 @@ class ApiService {
 
     if (data["success"] == true) {
       return data["name"];
+    } else {
+      return null;
     }
-    return null;
   }
 
-  // GET NOTICES
-  static Future<List<dynamic>> getNotices() async {
-    final res = await http.get(Uri.parse("$baseUrl/get_notices.php"));
-    final data = json.decode(res.body);
-    return data["notices"];
-  }
-
-  // ADD NOTICE
-  static Future<bool> addNotice(String userName, String content) async {
+  // MARK ATTENDANCE
+  static Future<bool> markAttendance(
+      String userName, String subject, String status) async {
     final res = await http.post(
-      Uri.parse("$baseUrl/add_notice.php"),
+      Uri.parse("$baseUrl/mark_attendance.php"),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
         "user_name": userName,
-        "content": content,
+        "subject": subject,
+        "status": status,
       }),
     );
-
     final data = json.decode(res.body);
     return data['success'] == true;
+  }
+
+  // GET ATTENDANCE RECORDS
+  static Future<List<dynamic>> getAttendance() async {
+    final res = await http.get(Uri.parse("$baseUrl/get_attendance.php"));
+    final data = jsonDecode(res.body);
+    return data['records'];
   }
 }
