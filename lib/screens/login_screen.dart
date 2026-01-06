@@ -20,8 +20,9 @@ class _LoginScreenState extends State<LoginScreen> {
       if (name != null) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => HomeScreen(userName: name)),
+          MaterialPageRoute(builder: (_) => AttendanceScreen(userName: nameFromLogin)),
         );
+
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Login failed")),
