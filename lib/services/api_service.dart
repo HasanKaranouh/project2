@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'attendance_item.dart';
+import 'package:project2/models/attendance_item.dart';
 
 class ApiService {
   // REPLACE WITH YOUR ACTUAL DOMAIN
