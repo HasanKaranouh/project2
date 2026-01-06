@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import '../services/api_service.dart';
-import 'register_screen.dart';
 import 'attendance_screen.dart';
+import 'api_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,27 +10,21 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passController = TextEditingController();
 
-  void login() async {
-    try {
-      String? name = await ApiService.login(emailController.text, passwordController.text);
-      if (name != null) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => AttendanceScreen(userName: name)),
-        );
+  void _login() async {
+    var res = await ApiService.login(_emailController.text, _passController.text);
 
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Login failed")),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
+    if (res['status'] == 'success') {
+      // Pass the user name to the next screen so we know who is logged in
+      String userName = res['name'];
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => AttendanceScreen(userName: userName)),
       );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(res['message'])));
     }
   }
 
@@ -40,26 +33,17 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text("Login")),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(labelText: "Email"),
-            ),
-            TextField(
-              controller: passwordController,
-              decoration: const InputDecoration(labelText: "Password"),
-              obscureText: true,
-            ),
+            TextField(controller: _emailController, decoration: const InputDecoration(labelText: "Email")),
+            TextField(controller: _passController, decoration: const InputDecoration(labelText: "Password"), obscureText: true),
             const SizedBox(height: 20),
-            ElevatedButton(onPressed: login, child: const Text("Login")),
+            ElevatedButton(onPressed: _login, child: const Text("Login")),
             TextButton(
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen()));
-              },
+              onPressed: () => Navigator.pushNamed(context, '/register'),
               child: const Text("Don't have an account? Register"),
-            ),
+            )
           ],
         ),
       ),
