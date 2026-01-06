@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
-import 'add_notice_screen.dart';
+import 'mark_attendance_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final String userName;
