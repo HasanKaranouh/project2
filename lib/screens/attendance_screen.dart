@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import '../services/api_service.dart';
 import 'mark_attendance_screen.dart';
+import 'api_service.dart';
+import 'attendance_item.dart';
 
 class AttendanceScreen extends StatefulWidget {
-  final String userName;
+  final String userName; // We need to know whose attendance to show
   const AttendanceScreen({super.key, required this.userName});
 
   @override
@@ -11,46 +12,73 @@ class AttendanceScreen extends StatefulWidget {
 }
 
 class _AttendanceScreenState extends State<AttendanceScreen> {
-  List attendanceRecords = [];
+  late Future<List<AttendanceItem>> _attendanceList;
 
   @override
   void initState() {
     super.initState();
-    fetchAttendance();
+    _refreshAttendance();
   }
 
-  void fetchAttendance() async {
-    final data = await ApiService.getAttendance();
+  void _refreshAttendance() {
     setState(() {
-      attendanceRecords = data;
+      _attendanceList = ApiService.getAttendance(widget.userName);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Attendance Records")),
-      body: ListView.builder(
-        itemCount: attendanceRecords.length,
-        itemBuilder: (context, index) {
-          final record = attendanceRecords[index];
-          return ListTile(
-            title: Text(record['subject'] ?? ''),
-            subtitle: Text("Student: ${record['user_name']}"),
-            trailing: Text(record['status'] ?? ''),
+      appBar: AppBar(
+        title: Text("Welcome, ${widget.userName}"),
+        actions: [
+          IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: _refreshAttendance
+          )
+        ],
+      ),
+      body: FutureBuilder<List<AttendanceItem>>(
+        future: _attendanceList,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text("No attendance records found."));
+          }
+
+          return ListView.builder(
+            itemCount: snapshot.data!.length,
+            itemBuilder: (context, index) {
+              final item = snapshot.data![index];
+              return Card(
+                child: ListTile(
+                  leading: Icon(
+                    item.status == "Present" ? Icons.check_circle : Icons.cancel,
+                    color: item.status == "Present" ? Colors.green : Colors.red,
+                  ),
+                  title: Text(item.subject),
+                  subtitle: Text(item.date),
+                  trailing: Text(item.status, style: const TextStyle(fontWeight: FontWeight.bold)),
+                ),
+              );
+            },
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          await Navigator.push(
+          // Navigate to Mark Attendance and wait for result
+          final result = await Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (_) =>
-                  MarkAttendanceScreen(userName: widget.userName),
-            ),
+            MaterialPageRoute(builder: (context) => MarkAttendanceScreen(userName: widget.userName)),
           );
-          fetchAttendance(); // refresh after marking attendance
+          // If we marked successfully, refresh the list
+          if (result == true) {
+            _refreshAttendance();
+          }
         },
         child: const Icon(Icons.add),
       ),
